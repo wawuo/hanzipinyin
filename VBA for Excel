@@ -1,0 +1,55 @@
+Function ConvertHanziToPinyin(hanzi As String) As String
+    Dim conn As Object
+    Dim rs As Object
+    Dim pinyin As String
+    Dim char As String
+    Dim tempPinyin As String
+    Dim dbPath As String
+    
+    ' 获取当前工作簿路径
+    dbPath = ThisWorkbook.Path & "\hanzi.accdb"
+    
+    ' 检查文件是否存在
+    If Dir(dbPath) = "" Then
+        ConvertHanziToPinyin = "数据库文件未找到，请将数据库文件与Excel工作簿放在同一目录中。"
+        Exit Function
+    End If
+    
+    ' 创建 ADO 连接
+    Set conn = CreateObject("ADODB.Connection")
+    conn.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & dbPath
+    
+    ' 遍历每个汉字
+    For i = 1 To Len(hanzi)
+        char = Mid(hanzi, i, 1)
+        
+        ' 查询拼音
+        Set rs = CreateObject("ADODB.Recordset")
+        rs.Open "SELECT 拼音 FROM Hzpyutf8 WHERE 汉字 = '" & char & "'", conn, 1, 1
+        
+        If Not rs.EOF Then
+            tempPinyin = ""
+            Do While Not rs.EOF
+                If tempPinyin <> "" Then
+                    tempPinyin = tempPinyin & ","
+                End If
+                tempPinyin = tempPinyin & rs("拼音")
+                rs.MoveNext
+            Loop
+            ' 如果有多个拼音，放在括号内并注明多音
+            If InStr(tempPinyin, ",") > 0 Then
+                pinyin = pinyin & "(" & tempPinyin & ") "
+            Else
+                pinyin = pinyin & tempPinyin & " "
+            End If
+        Else
+            ' 如果字典中没有找到对应拼音，保留原字符
+            pinyin = pinyin & char & " "
+        End If
+        
+        rs.Close
+    Next i
+    
+    conn.Close
+    ConvertHanziToPinyin = Trim(pinyin)
+End Function
