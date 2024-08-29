@@ -25,4 +25,7 @@ db目录下的hanzi.db是sqlite3数据库，其中数据位于hanzi这个表中�
 
 script包含一些没什么用的脚本。
 
-20240829使用vba与access数表（hanzi）在Excel中使用函数来转换拼音.
+H1 20240829使用vba与access数表（hanzi）在Excel中使用函数来转换拼音.
+  VBA使用 ADO（ActiveX Data Objects）
+  在Alt+F11中插入一下新模块
+  在Excel中空白单无格里使用 =ConvertHanziToPinyin(A1)  其中A1是汉字单元格坐标
