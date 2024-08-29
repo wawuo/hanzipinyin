@@ -28,17 +28,12 @@ Function ConvertHanziToPinyin(hanzi As String) As String
         rs.Open "SELECT 拼音 FROM Hzpyutf8 WHERE 汉字 = '" & char & "'", conn, 1, 1
         
         If Not rs.EOF Then
-            tempPinyin = ""
-            Do While Not rs.EOF
-                If tempPinyin <> "" Then
-                    tempPinyin = tempPinyin & ","
-                End If
-                tempPinyin = tempPinyin & rs("拼音")
-                rs.MoveNext
-            Loop
+            tempPinyin = rs("拼音")
             ' 如果有多个拼音，放在括号内并注明多音
             If InStr(tempPinyin, ",") > 0 Then
-                pinyin = pinyin & "(" & tempPinyin & ") "
+                Dim pinyinArray() As String
+                pinyinArray = Split(tempPinyin, ",")
+                pinyin = pinyin & pinyinArray(0) & " (" & Join(Application.Index(pinyinArray, Evaluate("ROW(1:" & UBound(pinyinArray) & ")")), ", ") & ") "
             Else
                 pinyin = pinyin & tempPinyin & " "
             End If
@@ -53,3 +48,4 @@ Function ConvertHanziToPinyin(hanzi As String) As String
     conn.Close
     ConvertHanziToPinyin = Trim(pinyin)
 End Function
+
